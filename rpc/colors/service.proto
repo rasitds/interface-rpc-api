@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package sencha.colors;
+
+option go_package = "/rpc/colors";
+
+service Colors {
+  rpc GetColors(GetColorsRequest) returns (GetColorsResponse);
+}
+
+message GetColorsRequest {
+  string name = 1;
+}
+
+message GetColorsResponse {
+  string colorData = 1;
+}
