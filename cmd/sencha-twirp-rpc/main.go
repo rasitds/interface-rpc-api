@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"sencha-twirp-rpc/internal/backend/postgresql"
-	api "sencha-twirp-rpc/rpc/colors"
+	api "sencha-twirp-rpc/rpc/themes"
 	"sencha-twirp-rpc/server"
 )
 
 func main() {
-	s := server.NewColorsServer(postgresql.NewPostgreSQLBackend())
-	twirpHandler := api.NewColorsServer(s)
+	s := server.NewThemesServer(postgresql.NewPostgreSQLBackend())
+	twirpHandler := api.NewThemesServer(s)
 
 	mux := http.NewServeMux()
 	mux.Handle(twirpHandler.PathPrefix(), twirpHandler)

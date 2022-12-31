@@ -2,10 +2,10 @@ package server
 
 import "sencha-twirp-rpc/internal/backend"
 
-type ColorsServer struct {
+type ThemesServer struct {
 	backend backend.Backender
 }
 
-func NewColorsServer(backend backend.Backender) *ColorsServer {
-	return &ColorsServer{backend: backend}
+func NewThemesServer(backend backend.Backender) *ThemesServer {
+	return &ThemesServer{backend: backend}
 }

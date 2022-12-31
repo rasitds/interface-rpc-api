@@ -1,7 +1,10 @@
 package backend
 
-import "context"
+import (
+	"context"
+	"sencha-twirp-rpc/internal/models"
+)
 
 type Backender interface {
-	GetColors(ctx context.Context, name string) (string, error)
+	GetTheme(ctx context.Context, name string) (*models.Theme, error)
 }

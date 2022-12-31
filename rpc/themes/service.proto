@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package sencha.themes;
+
+option go_package = "/rpc/themes";
+
+service Themes {
+  rpc GetTheme(GetThemeRequest) returns (GetThemeResponse);
+}
+
+message GetThemeRequest {
+  string name = 1;
+}
+
+message GetThemeResponse {
+  Theme themeData = 1;
+}
+
+message Theme {
+  string Background = 1;
+  string Foreground = 2;
+}
