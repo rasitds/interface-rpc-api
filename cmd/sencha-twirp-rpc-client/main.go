@@ -18,5 +18,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Theme Colors: ", themeResp.ThemeData)
+	fmt.Println("Theme Colors:", themeResp.ThemeData)
+
+	createdTheme, err := client.CreateTheme(context.Background(), &api.CreateThemeRequest{Name: "green", Background: "#0C0C0C", Foreground: "#00FF00"})
+
+	if err != nil {
+		fmt.Println("Client main.go createdTheme Error:", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Created theme colors:", createdTheme.ThemeData)
 }

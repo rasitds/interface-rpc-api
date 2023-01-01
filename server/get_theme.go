@@ -17,7 +17,7 @@ func (s *ThemesServer) GetTheme(ctx context.Context, req *api.GetThemeRequest) (
 	themeData, err := s.backend.GetTheme(ctx, req.Name)
 
 	if err != nil {
-		fmt.Println("Server get_themes.go GetTheme Error:", err)
+		fmt.Println("Server get_theme.go GetTheme Error:", err)
 		return nil, twirp.InternalErrorWith(err)
 	}
 

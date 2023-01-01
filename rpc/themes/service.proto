@@ -6,10 +6,17 @@ option go_package = "/rpc/themes";
 
 service Themes {
   rpc GetTheme(GetThemeRequest) returns (GetThemeResponse);
+  rpc CreateTheme(CreateThemeRequest) returns (GetThemeResponse);
 }
 
 message GetThemeRequest {
   string name = 1;
+}
+
+message CreateThemeRequest {
+  string name = 1;
+  string background = 2;
+  string foreground = 3;
 }
 
 message GetThemeResponse {
