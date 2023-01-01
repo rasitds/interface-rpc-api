@@ -6,12 +6,17 @@ import (
 	"sencha-twirp-rpc/internal/models"
 
 	"github.com/twitchtv/twirp"
+	"gorm.io/gorm"
 )
 
-type PostgreSQLBackend struct{}
+type PostgreSQLBackend struct {
+	DB *gorm.DB
+}
 
-func NewPostgreSQLBackend() backend.Backender {
-	return &PostgreSQLBackend{}
+func NewPostgreSQLBackend(db *gorm.DB) backend.Backender {
+	return &PostgreSQLBackend{
+		DB: db,
+	}
 }
 
 var themes map[string]*models.Theme = map[string]*models.Theme{
