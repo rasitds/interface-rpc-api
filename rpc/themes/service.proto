@@ -4,9 +4,21 @@ package sencha.themes;
 
 option go_package = "/rpc/themes";
 
+import "google/protobuf/empty.proto";
+
 service Themes {
   rpc GetTheme(GetThemeRequest) returns (GetThemeResponse);
   rpc CreateTheme(CreateThemeRequest) returns (GetThemeResponse);
+  rpc AddThemes(AddThemesRequest) returns (google.protobuf.Empty);
+  rpc GetThemes(GetThemesRequest) returns (GetThemesResponse);
+}
+
+message AddThemesRequest {}
+
+message GetThemesRequest {}
+
+message GetThemesResponse {
+  repeated Theme themeData = 1;
 }
 
 message GetThemeRequest {
@@ -24,6 +36,7 @@ message GetThemeResponse {
 }
 
 message Theme {
-  string Background = 1;
-  string Foreground = 2;
+  string Name = 1;
+  string Background = 2;
+  string Foreground = 3;
 }

@@ -16,6 +16,8 @@ import proto "google.golang.org/protobuf/proto"
 import twirp "github.com/twitchtv/twirp"
 import ctxsetters "github.com/twitchtv/twirp/ctxsetters"
 
+import google_protobuf "google.golang.org/protobuf/types/known/emptypb"
+
 import bytes "bytes"
 import errors "errors"
 import path "path"
@@ -35,6 +37,10 @@ type Themes interface {
 	GetTheme(context.Context, *GetThemeRequest) (*GetThemeResponse, error)
 
 	CreateTheme(context.Context, *CreateThemeRequest) (*GetThemeResponse, error)
+
+	AddThemes(context.Context, *AddThemesRequest) (*google_protobuf.Empty, error)
+
+	GetThemes(context.Context, *GetThemesRequest) (*GetThemesResponse, error)
 }
 
 // ======================
@@ -43,7 +49,7 @@ type Themes interface {
 
 type themesProtobufClient struct {
 	client      HTTPClient
-	urls        [2]string
+	urls        [4]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -71,9 +77,11 @@ func NewThemesProtobufClient(baseURL string, client HTTPClient, opts ...twirp.Cl
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "sencha.themes", "Themes")
-	urls := [2]string{
+	urls := [4]string{
 		serviceURL + "GetTheme",
 		serviceURL + "CreateTheme",
+		serviceURL + "AddThemes",
+		serviceURL + "GetThemes",
 	}
 
 	return &themesProtobufClient{
@@ -176,13 +184,105 @@ func (c *themesProtobufClient) callCreateTheme(ctx context.Context, in *CreateTh
 	return out, nil
 }
 
+func (c *themesProtobufClient) AddThemes(ctx context.Context, in *AddThemesRequest) (*google_protobuf.Empty, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "sencha.themes")
+	ctx = ctxsetters.WithServiceName(ctx, "Themes")
+	ctx = ctxsetters.WithMethodName(ctx, "AddThemes")
+	caller := c.callAddThemes
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *AddThemesRequest) (*google_protobuf.Empty, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*AddThemesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*AddThemesRequest) when calling interceptor")
+					}
+					return c.callAddThemes(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*google_protobuf.Empty)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *themesProtobufClient) callAddThemes(ctx context.Context, in *AddThemesRequest) (*google_protobuf.Empty, error) {
+	out := new(google_protobuf.Empty)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *themesProtobufClient) GetThemes(ctx context.Context, in *GetThemesRequest) (*GetThemesResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "sencha.themes")
+	ctx = ctxsetters.WithServiceName(ctx, "Themes")
+	ctx = ctxsetters.WithMethodName(ctx, "GetThemes")
+	caller := c.callGetThemes
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetThemesRequest) (*GetThemesResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetThemesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetThemesRequest) when calling interceptor")
+					}
+					return c.callGetThemes(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetThemesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetThemesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *themesProtobufClient) callGetThemes(ctx context.Context, in *GetThemesRequest) (*GetThemesResponse, error) {
+	out := new(GetThemesResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
 // ==================
 // Themes JSON Client
 // ==================
 
 type themesJSONClient struct {
 	client      HTTPClient
-	urls        [2]string
+	urls        [4]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -210,9 +310,11 @@ func NewThemesJSONClient(baseURL string, client HTTPClient, opts ...twirp.Client
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "sencha.themes", "Themes")
-	urls := [2]string{
+	urls := [4]string{
 		serviceURL + "GetTheme",
 		serviceURL + "CreateTheme",
+		serviceURL + "AddThemes",
+		serviceURL + "GetThemes",
 	}
 
 	return &themesJSONClient{
@@ -301,6 +403,98 @@ func (c *themesJSONClient) CreateTheme(ctx context.Context, in *CreateThemeReque
 func (c *themesJSONClient) callCreateTheme(ctx context.Context, in *CreateThemeRequest) (*GetThemeResponse, error) {
 	out := new(GetThemeResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *themesJSONClient) AddThemes(ctx context.Context, in *AddThemesRequest) (*google_protobuf.Empty, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "sencha.themes")
+	ctx = ctxsetters.WithServiceName(ctx, "Themes")
+	ctx = ctxsetters.WithMethodName(ctx, "AddThemes")
+	caller := c.callAddThemes
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *AddThemesRequest) (*google_protobuf.Empty, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*AddThemesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*AddThemesRequest) when calling interceptor")
+					}
+					return c.callAddThemes(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*google_protobuf.Empty)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *themesJSONClient) callAddThemes(ctx context.Context, in *AddThemesRequest) (*google_protobuf.Empty, error) {
+	out := new(google_protobuf.Empty)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *themesJSONClient) GetThemes(ctx context.Context, in *GetThemesRequest) (*GetThemesResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "sencha.themes")
+	ctx = ctxsetters.WithServiceName(ctx, "Themes")
+	ctx = ctxsetters.WithMethodName(ctx, "GetThemes")
+	caller := c.callGetThemes
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetThemesRequest) (*GetThemesResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetThemesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetThemesRequest) when calling interceptor")
+					}
+					return c.callGetThemes(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetThemesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetThemesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *themesJSONClient) callGetThemes(ctx context.Context, in *GetThemesRequest) (*GetThemesResponse, error) {
+	out := new(GetThemesResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -417,6 +611,12 @@ func (s *themesServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		return
 	case "CreateTheme":
 		s.serveCreateTheme(ctx, resp, req)
+		return
+	case "AddThemes":
+		s.serveAddThemes(ctx, resp, req)
+		return
+	case "GetThemes":
+		s.serveGetThemes(ctx, resp, req)
 		return
 	default:
 		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
@@ -762,6 +962,366 @@ func (s *themesServer) serveCreateThemeProtobuf(ctx context.Context, resp http.R
 	}
 	if respContent == nil {
 		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetThemeResponse and nil error while calling CreateTheme. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *themesServer) serveAddThemes(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveAddThemesJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveAddThemesProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *themesServer) serveAddThemesJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "AddThemes")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(AddThemesRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.Themes.AddThemes
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *AddThemesRequest) (*google_protobuf.Empty, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*AddThemesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*AddThemesRequest) when calling interceptor")
+					}
+					return s.Themes.AddThemes(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*google_protobuf.Empty)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *google_protobuf.Empty
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling AddThemes. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *themesServer) serveAddThemesProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "AddThemes")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(AddThemesRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.Themes.AddThemes
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *AddThemesRequest) (*google_protobuf.Empty, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*AddThemesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*AddThemesRequest) when calling interceptor")
+					}
+					return s.Themes.AddThemes(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*google_protobuf.Empty)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *google_protobuf.Empty
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling AddThemes. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *themesServer) serveGetThemes(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveGetThemesJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveGetThemesProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *themesServer) serveGetThemesJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetThemes")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(GetThemesRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.Themes.GetThemes
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetThemesRequest) (*GetThemesResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetThemesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetThemesRequest) when calling interceptor")
+					}
+					return s.Themes.GetThemes(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetThemesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetThemesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetThemesResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetThemesResponse and nil error while calling GetThemes. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *themesServer) serveGetThemesProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetThemes")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(GetThemesRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.Themes.GetThemes
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetThemesRequest) (*GetThemesResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetThemesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetThemesRequest) when calling interceptor")
+					}
+					return s.Themes.GetThemes(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetThemesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetThemesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetThemesResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetThemesResponse and nil error while calling GetThemes. nil responses are not supported"))
 		return
 	}
 
@@ -1366,21 +1926,26 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 253 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x91, 0xcf, 0x4a, 0xc4, 0x30,
-	0x10, 0x87, 0xa9, 0x7f, 0x16, 0x77, 0xca, 0xa2, 0x0c, 0x1e, 0x8a, 0x87, 0x55, 0x03, 0x82, 0xa7,
-	0x14, 0xea, 0x1b, 0xac, 0xb2, 0x7b, 0xf0, 0xe4, 0xe2, 0xc9, 0x5b, 0x36, 0x8e, 0x56, 0xa4, 0x49,
-	0x4d, 0x52, 0x9f, 0xc9, 0xc7, 0x94, 0x24, 0x95, 0xd4, 0x8a, 0xf4, 0xd6, 0xfe, 0xbe, 0x49, 0xf2,
-	0xcd, 0x0c, 0x14, 0xa6, 0x95, 0xa5, 0xab, 0xa9, 0x21, 0x5b, 0x5a, 0x32, 0x9f, 0x6f, 0x92, 0x78,
-	0x6b, 0xb4, 0xd3, 0xb8, 0xb0, 0xa4, 0x64, 0x2d, 0x78, 0x84, 0xec, 0x0a, 0x8e, 0x37, 0xe4, 0x1e,
-	0xfd, 0xcf, 0x96, 0x3e, 0x3a, 0xb2, 0x0e, 0x11, 0x0e, 0x94, 0x68, 0xa8, 0xc8, 0x2e, 0xb2, 0xeb,
-	0xf9, 0x36, 0x7c, 0xb3, 0x1a, 0xf0, 0xd6, 0x90, 0x70, 0x34, 0x55, 0x89, 0x4b, 0x80, 0x9d, 0x90,
-	0xef, 0xaf, 0x46, 0x77, 0xea, 0xb9, 0xd8, 0x0b, 0x64, 0x90, 0x78, 0xfe, 0xa2, 0x0d, 0xf5, 0x7c,
-	0x3f, 0xf2, 0x94, 0xb0, 0x35, 0x9c, 0x24, 0x21, 0xdb, 0x6a, 0x65, 0x09, 0x2b, 0x98, 0x07, 0xdd,
-	0x3b, 0xe1, 0x44, 0x78, 0x2c, 0xaf, 0x4e, 0xf9, 0xaf, 0x3e, 0x78, 0x3c, 0x90, 0xca, 0xd8, 0x06,
-	0x0e, 0x43, 0xe6, 0x1f, 0x5c, 0x25, 0xa1, 0xa8, 0x3a, 0x48, 0x3c, 0x5f, 0x27, 0xa1, 0x5e, 0x38,
-	0x25, 0xd5, 0x57, 0x06, 0xb3, 0x70, 0x93, 0xc5, 0x7b, 0x38, 0xfa, 0x71, 0xc3, 0xe5, 0x48, 0x60,
-	0x34, 0xc5, 0xb3, 0xf3, 0x7f, 0x79, 0xdf, 0xd4, 0x03, 0xe4, 0x83, 0x91, 0xe2, 0xe5, 0xa8, 0xfe,
-	0xef, 0xb8, 0x27, 0xaf, 0x5c, 0x2d, 0x9e, 0xf2, 0x32, 0x2d, 0x7e, 0x37, 0x0b, 0x1b, 0xbf, 0xf9,
-	0x0e, 0x00, 0x00, 0xff, 0xff, 0x12, 0x8c, 0x56, 0xad, 0x0d, 0x02, 0x00, 0x00,
+	// 336 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x53, 0xd1, 0x4a, 0xc3, 0x40,
+	0x10, 0x24, 0xad, 0x16, 0xb3, 0xa5, 0xa8, 0x8b, 0x48, 0xa8, 0x50, 0x6b, 0x40, 0xe8, 0xd3, 0x05,
+	0xea, 0x17, 0x58, 0x6b, 0xfb, 0x20, 0x14, 0x2c, 0x3e, 0xe9, 0xd3, 0x35, 0xdd, 0xb6, 0xa2, 0xcd,
+	0xc5, 0xbb, 0xab, 0xe0, 0xcf, 0xf9, 0x6d, 0x92, 0xbb, 0xb4, 0x49, 0x13, 0x42, 0x7d, 0x0b, 0x33,
+	0x93, 0xdd, 0x99, 0xcd, 0x04, 0x3c, 0x19, 0x87, 0x81, 0x5e, 0xd1, 0x9a, 0x54, 0xa0, 0x48, 0x7e,
+	0xbf, 0x87, 0xc4, 0x62, 0x29, 0xb4, 0xc0, 0x96, 0xa2, 0x28, 0x5c, 0x71, 0x66, 0xc9, 0xf6, 0xd5,
+	0x52, 0x88, 0xe5, 0x27, 0x05, 0x86, 0x9c, 0x6d, 0x16, 0x01, 0xad, 0x63, 0xfd, 0x63, 0xb5, 0x3e,
+	0xc2, 0xd9, 0xfd, 0x7c, 0xfe, 0x62, 0x94, 0x53, 0xfa, 0xda, 0x90, 0xd2, 0x09, 0x36, 0x26, 0xbd,
+	0x8f, 0x8d, 0xe1, 0x3c, 0x87, 0xa9, 0x58, 0x44, 0x8a, 0xb0, 0x0f, 0xae, 0xd9, 0x31, 0xe4, 0x9a,
+	0x7b, 0x4e, 0xb7, 0xde, 0x6b, 0xf6, 0x2f, 0xd8, 0xde, 0x72, 0x66, 0xde, 0x98, 0x66, 0x32, 0xff,
+	0x16, 0x4e, 0xb7, 0x83, 0xd2, 0xd9, 0x88, 0x70, 0x14, 0xf1, 0x35, 0x79, 0x4e, 0xd7, 0xe9, 0xb9,
+	0x53, 0xf3, 0xec, 0xaf, 0x00, 0x1f, 0x24, 0x71, 0x4d, 0x87, 0x94, 0xd8, 0x01, 0x98, 0xf1, 0xf0,
+	0x63, 0x29, 0xc5, 0x26, 0x9a, 0x7b, 0x35, 0xc3, 0xe4, 0x90, 0x84, 0x5f, 0x08, 0x49, 0x29, 0x5f,
+	0xb7, 0x7c, 0x86, 0xf8, 0xa3, 0x2c, 0x6d, 0x55, 0x30, 0xe7, 0x3f, 0xc1, 0xde, 0xe0, 0xd8, 0x60,
+	0x89, 0xc9, 0x49, 0xce, 0xe4, 0x24, 0x35, 0x39, 0x28, 0x99, 0x1c, 0xec, 0x99, 0x1c, 0x95, 0x4c,
+	0x66, 0x48, 0xff, 0xb7, 0x06, 0x0d, 0x7b, 0x7c, 0x7c, 0x82, 0x93, 0xad, 0x5f, 0xec, 0x14, 0x4c,
+	0x15, 0x2e, 0xdb, 0xbe, 0xae, 0xe4, 0xd3, 0xa0, 0xcf, 0xd0, 0xcc, 0x9d, 0x19, 0x6f, 0x0a, 0xfa,
+	0xf2, 0x27, 0x38, 0x3c, 0x72, 0x08, 0xee, 0xae, 0x51, 0x58, 0x54, 0x17, 0xbb, 0xd6, 0xbe, 0x64,
+	0xb6, 0x9d, 0x6c, 0xdb, 0x4e, 0xf6, 0x98, 0xb4, 0x13, 0x27, 0xe0, 0xee, 0xfa, 0x86, 0x55, 0x3b,
+	0x77, 0x53, 0xba, 0xd5, 0x02, 0xeb, 0x6a, 0xd0, 0x7a, 0x6d, 0x06, 0xd9, 0x0f, 0x33, 0x6b, 0x98,
+	0x75, 0x77, 0x7f, 0x01, 0x00, 0x00, 0xff, 0xff, 0xfd, 0x95, 0x77, 0xf3, 0x45, 0x03, 0x00, 0x00,
 }

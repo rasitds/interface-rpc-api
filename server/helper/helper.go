@@ -6,5 +6,5 @@ import (
 )
 
 func ConvertToThemeModel(t *models.Theme) *api.Theme {
-	return &api.Theme{Background: t.Background, Foreground: t.Foreground}
+	return &api.Theme{Name: t.Name, Background: t.Background, Foreground: t.Foreground}
 }

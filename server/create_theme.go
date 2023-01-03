@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	api "sencha-twirp-rpc/rpc/themes"
 	"sencha-twirp-rpc/server/helper"
 
@@ -15,6 +16,7 @@ func (s *ThemesServer) CreateTheme(ctx context.Context, req *api.CreateThemeRequ
 
 	theme, err := s.backend.CreateTheme(ctx, req.Name, req.Background, req.Foreground)
 	if err != nil {
+		fmt.Println("CreateTheme Error:", err)
 		return nil, twirp.InternalErrorWith(err)
 	}
 
